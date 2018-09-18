@@ -1,0 +1,49 @@
+* Chapter 1
+** Beta normal form is when you cannot beta reduce (apply lambdas to arguments) the terms any further. 
+** Lambda calculus is a formal system for expressing programs in terms of abstraction and application.
+* Chapter 2
+** Reducing an expression means evaluating the terms until you’re left with a value
+** Expression is in canonical or /normal form/ when it reaches the number 6 because the value 6 has no remaining reducible expressions. 
+Haskell’s nonstrict evaluation means not everything will get reduced to its irreducible form immediately, so this:
+ ~(\f -> (1, 2 + f)) 2~
+reduces to the following in WHNF:
+ ~(1, 2 + 2)~
+** /let/ introduces an expression, so it can be used wherever you can have an expression, but /where/ is a declaration and is bound to a surrounding syntactic construct.
+**  In Haskell, an /expression/ is a well-structured combination of constants, variables, and functions.
+* Chapter 4
+** /Data declarations/ are how datatypes are defined.
+** The type constructor is the name of the type and is capitalized.
+** Data constructors are the values that inhabit the type they are defined in.
+** Example of data desclaration:
+   data Bool = False | True
+   --   [1]     [2] [3] [4]
+   1. Type constructor for datatype Bool. This is the name of the type and shows up in type signatures.
+   2. Data constructor for the value False.
+   3. Pipe | indicates a sum type or logical disjunction: “or.” So, a Bool value is True or False.
+   4. Data constructor for the value True.
+** Numeric types:
+   1. Integral Numbers:
+      1. Int
+      2. Integer
+   2. Fractional
+      1. Float
+      2. Double
+      3. Rational
+** A typeclass is a set of operations defined with respect to a polymorphic type.
+   When a type is an instance of a typeclass, values of that type can be used in the standard operations defined for that typeclass. In Haskell, typeclasses are unique pairings of class and concrete instance. This means that if a given type a has an instance of Eq, it has only one instance of Eq.
+* Chapter 5
+** In Haskell, you cannot create untyped data, so except for a sprinkling of syntactic sugar for things like numbers or functions, everything originates in a data constructor from some definition of a type.
+** The arrow, (->), is the type constructor for functions in Haskell.
+   Compare:
+   #+BEGIN_SRC haskell
+       Prelude> :info (->)
+       data (->) a b
+
+     -- If you compare this to the type constructor for the two-tuple, you
+     -- see the similarity:
+       Prelude> :info (,)
+       data (,) a b = (,) a b
+   #+END_SRC
+   Unlike the tuple constructor, though, the function type has no data constructors. The value that shows up at term level is the function. 
+   /Functions are values./
+   The parameterization suggests that we will apply the function to some argument that will be bound to the first parameter, with the second parameter, b, representing the return or result type.

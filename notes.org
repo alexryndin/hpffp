@@ -33,7 +33,12 @@ reduces to the following in WHNF:
    When a type is an instance of a typeclass, values of that type can be used in the standard operations defined for that typeclass. In Haskell, typeclasses are unique pairings of class and concrete instance. This means that if a given type a has an instance of Eq, it has only one instance of Eq.
 * Chapter 5
 ** In Haskell, you cannot create untyped data, so except for a sprinkling of syntactic sugar for things like numbers or functions, everything originates in a data constructor from some definition of a type.
-** The arrow, (->), is the type constructor for functions in Haskell.
+** The arrow, (->), is the type constructor for functions in Haskell.(Ord a, Num a) => a -> a -> Ordering
+Here, the constraints look like a tuple but they don’t add another
+function argument that you must provide, and they don’t appear
+as a tuple at the value or term level. Nothing to the left of the type-
+class arrow, =>, shows up at term level. The tuple of constraints does
+represent a product, or conjunction, of constraints.
    Compare:
    #+BEGIN_SRC haskell
        Prelude> :info (->)
@@ -47,6 +52,14 @@ reduces to the following in WHNF:
    Unlike the tuple constructor, though, the function type has no data constructors. The value that shows up at term level is the function. 
    /Functions are values./
    The parameterization suggests that we will apply the function to some argument that will be bound to the first parameter, with the second parameter, b, representing the return or result type.
+** Type signature constraints
+   * Example - ~(Ord a, Num a) => a -> a -> Ordering~
+Here, the constraints look like a tuple but they don’t add another function argument that you must provide, and they don’t appear as a tuple at the value or term level. Nothing to the left of the type-class arrow, =>, shows up at term level. The tuple of constraints does represent a product, or conjunction, of constraints.
 ** The way the ~(->)~ type constructor for functions works means ~a -> a -> a~ represents successive function applications, each taking one argument and returning one result. The difference is that the function at the outermost layer is actually returning another function that accepts the next argument. This is called currying.
 Explicit parenthesization, as when an input parameter is itself a function (such as in map, above), may be used to indicate order of evaluation, but the implicit associativity of the function type does not mean the inner or final set of parentheses, i.e., the result type, evaluates first. Application is evaluation; in other words, the only way to evaluate anything is by applying functions, and function applica- tion is left associative. So, the leftmost, or outermost, arguments will be evaluated first, assuming anything gets evaluated (since Haskell is nonstrict, you can’t assume that anything will be evaluated, but this will be more clear later).
 Also - https://stackoverflow.com/questions/36143423/right-associativity-in-type-signatures-of-functions
+** Partial Application
+   * ~(2^)~ (left section) is equivalent to ~(^) 2~ , or more verbosely ~\x -> 2 ^ x~
+   * ~(^2)~ (right section) is equivalent to ~flip (^) 2~ , or more verbosely ~\x -> x ^ 2~
+   * More - https://wiki.haskell.org/Section_of_an_infix_operator
+Partial application is common enough in Haskell that, over time, you’ll develop an intuition for it. The sectioning syntax exists to allow some freedom in which argument of a binary operator you apply the function to.

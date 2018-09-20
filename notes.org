@@ -36,7 +36,10 @@ reduces to the following in WHNF:
    When a type is an instance of a typeclass, values of that type can be used in the standard operations defined for that typeclass. In Haskell, typeclasses are unique pairings of class and concrete instance. This means that if a given type a has an instance of Eq, it has only one instance of Eq.
 * Chapter 5
     * In Haskell, you cannot create untyped data, so except for a sprinkling of syntactic sugar for things like numbers or functions, everything originates in a data constructor from some definition of a type.
-    * The arrow, (->), is the type constructor for functions in Haskell.(Ord a, Num a) => a -> a -> Ordering
+tuple    * The arrow, ~(->)~, is the *type constructor* for functions in Haskell.
+#+BEGIN_SRC haskell
+(Ord a, Num a) => a -> a -> Ordering
+#+END_SRC
     Here, the constraints look like a tuple but they don’t add another function argument that you must provide, and they don’t appear as a tuple at the value or term level. Nothing to the left of the type-class arrow, =>, shows up at term level. The tuple of constraints does represent a product, or conjunction, of constraints.
     Compare:
    #+BEGIN_SRC haskell
@@ -64,5 +67,7 @@ Also - https://stackoverflow.com/questions/36143423/right-associativity-in-type-
 Partial application is common enough in Haskell that, over time, you’ll develop an intuition for it. The sectioning syntax exists to allow some freedom in which argument of a binary operator you apply the function to.
 ** Polymorphism
    * Type signatures may have three kinds of types: concrete, constrained polymorphic, or parametrically polymorphic.
-   *  
-     
+   * /Constrained/ = Ad-hoc polymorphyc. Ad-hoc polymorphism in Haskell is implemented with typeclasses.
+   * /Typeclass constraints/ limit the set of potential types (and, thus, potential values) while also passing along the common functions that can be used with those values.
+   * /Parametricity/ means that the behavior of a function with respect to the types of its (parametrically polymorphic) arguments is uniform.
+   Parametricity is the property we get from having parametric polymorphism.

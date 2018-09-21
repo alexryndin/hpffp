@@ -71,3 +71,5 @@ Partial application is common enough in Haskell that, over time, you’ll develo
    * /Typeclass constraints/ limit the set of potential types (and, thus, potential values) while also passing along the common functions that can be used with those values.
    * /Parametricity/ means that the behavior of a function with respect to the types of its (parametrically polymorphic) arguments is uniform.
    Parametricity is the property we get from having parametric polymorphism.
+** Type inference
+   * Haskell’s type inference is built on an extended version of the /Damas-Hindley-Milner/ type system.

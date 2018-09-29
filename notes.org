@@ -73,3 +73,18 @@ Partial application is common enough in Haskell that, over time, you’ll develo
    Parametricity is the property we get from having parametric polymorphism.
 ** Type inference
    * Haskell’s type inference is built on an extended version of the /Damas-Hindley-Milner/ type system.
+
+* Chapter 6
+** Haskell and purity (Show typeclass section)
+   * /Side effect/ -- a potentially observable result apart from the value the expression evaluates to.
+   Haskell manages effects by separating effectful computations from pure computations in ways that preserve the predictability and safety of function evaluation. Importantly, effect-bearing computations themselves become more composable and easier to reason about. The benefits of explicit effects include the fact that it makes it relatively easy to reason about and predict the results of our functions.
+   * ~main~ has IO () type because ~main` /only/ produces side effects.
+   * /IO/ is the type for values whose evaluation bears the possibility of causing side effects, such as printing text, reading text input from the user, reading or writing files, or connecting to remote computers.
+** Instances are dispatched by type
+* Chapter 7
+** Interesting point about lambda functions
+   > We won’t go into a lot of detail about this yet, but named entities and anonymous entities evaluate a bit differently in Haskell, and that can be one reason to use an anonymous function in some cases.
+* Chapter 8
+** Y-combinator
+   * We use a combinator – known as the /Y combinator/ or fixed-point combinator – to write recursive functions in the lambda calculus. Haskell has native recursion ability based on the same principle as the Y combinator.
+   * Also - http://mvanier.livejournal.com/2897.html

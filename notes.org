@@ -88,3 +88,64 @@ Partial application is common enough in Haskell that, over time, you’ll develo
 ** Y-combinator
    * We use a combinator – known as the /Y combinator/ or fixed-point combinator – to write recursive functions in the lambda calculus. Haskell has native recursion ability based on the same principle as the Y combinator.
    * Also - http://mvanier.livejournal.com/2897.html
+** Bottom
+   * ⊥ or bottom is a term used in Haskell to refer to computations that do not successfully result in a value. The two main varieties of bottom are computations that failed with an error or those that failed to terminate.
+* Chapter 9
+** List's sintactic sugar
+   * When we talk about lists, we often talk about them in terms of /cons cells/ and /spines/. 
+     ** The cons cells are the list datatype’s second data constructor, a : [a], the result of recursively prepending a value to “more list.” The cons cell is a conceptual space that values may inhabit.
+     ** The spine is the connective structure that holds the cons cells together and in place. As we will soon see, this structure nests the cons cells rather than ordering them in a right-to-left row. Because different functions may treat the spine and the cons cells differently, it is important to understand this underlying structure.
+** Spines and nonstrict evaluation
+   * When we talk about data structures in Haskell, particularly lists, sequences, and trees, we talk about them having a /spine/. This is the connective structure that ties the collection of values together.
+   The problem with the ~1 : (2 : (3 : []))~ representation we used earlier is that it makes it seem like the value 1 exists “before” the cons (:) cell that contains it, but actually, the cons cells contain the values. Because of this and the way nonstrict evaluation works, you can evaluate cons cells independently of what they contain. It is possible to evaluate just the spine of the list without evaluating individual values. It is also possible to evaluate only part of the spine of a list and not the rest of it.
+   Evaluation of the list in this representation proceeds /down/ the spine. Constructing the list when that is necessary, however, proceeds /up/ the spine.
+   Because Haskell’s evaluation is nonstrict, the list isn’t constructed until it’s consumed — indeed, nothing is evaluated until it must be. Until it’s consumed or you force strictness in some way, there are a series of placeholders as a blueprint of the list that can be constructed when it’s needed.
+   #+BEGIN_SRC 
+  :                :  <------|
+ / \              / \        |
+1   :            _   :  <----|  -----  This is the "spine"
+   / \     -->      / \      |
+  2   :            _   :  <--|
+     / \              / \
+     3 []             _ []
+   #+END_SRC
+   * A special command in GHCi called ~sprint~ to print variables and see what has been evaluated already, with the underscore representing expressions that haven’t been evaluated yet.
+   * GHC Haskell has some opportunistic optimizations which introduce strictness to make code faster when it won’t change how your code evaluates.
+   * Polymorphism means values like Num a => a are really waiting for a sort of argument which will make it concrete. Due to it sprint may behave confusing.
+   * Example of list evaluation:
+#+BEGIN_SRC 
+Prelude> :sprint blah
+blah = _
+-- The blah = _ indicates that blah is totally unevaluated. Next we’ll take one value from blah and then evaluate it by forcing GHCi to print the expression:
+Prelude> take 1 blah
+"a"
+Prelude> :sprint blah
+blah = 'a' : _
+#+END_SRC
+   * Spines are evaluated independently of values
+   * *WHNF* (‘Weak head normal form’) means the expression is only evaluated as far as is necessary to reach a data constructor.
+   Weak head normal form (WHNF) is a larger set and contains both the possibility that the expression is:
+     ** Fully evaluated (*normal form*)
+     ** Has been evaluated to the point of arriving at a *data constructor* 
+     ** *Lambda* awaiting an argument.
+
+   * /Weak Head/ is an expression which is evaluated up to /at least/ the first data constructor.
+   * /Normal form/ exceeds that by requiring that all sub-expressions be fully evaluated.
+   * Functions that are spine strict can force complete evaluation of the spine of the list even if they don’t force evaluation of each value.
+     ** Pattern matching is strict by default, so pattern matching on cons cells can mean forcing spine strictness if your function doesn’t stop recursing the list. It can evaluate the spine only or the spine as well as the values that inhabit each cons cell, depending on context.
+   * /Lazy in the spine, strict in the leaves/
+   We can have lazily evaluated code (e.g., map) wrapped around a strict core (e.g., +). In fact, we can choose to apply laziness and strictness in how we evaluate the spine or the leaves independently.
+
+** Defenitions
+   * /Cons cell/ is a data constructor and a product of the types a and [a] as defined in the list datatype.
+   Because it references the list type constructor itself in the second argument, it allows for nesting of multiple cons cells, possibly indefinitely with the use of recursive functions, for representing an indefinite number of values in series:
+#+BEGIN_SRC 
+data [] a = [] | a : [a]
+                   ^ cons operator
+-- Defining it ourselves
+data List a = Nil | Cons a (List a)
+-- Creating a list using our list type
+Cons 1 (Cons 2 (Cons 3 Nil))
+#+END_SRC
+   Here (Cons 1 ...), (Cons 2 ...) and (Cons 3 Nil) are all individual cons cells in the list [1, 2, 3].
+   * The spine is a way to refer to the structure that glues a collection of values together. In the list datatype it is formed by the recursive nesting of cons cells. The spine is, in essence, the structure of collection that isn’t the values contained therein. Often spine will be used in reference to lists, but it applies with tree data structures as well

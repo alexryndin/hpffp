@@ -125,14 +125,14 @@ blah = 'a' : _
    * Spines are evaluated independently of values
    * *WHNF* (‘Weak head normal form’) means the expression is only evaluated as far as is necessary to reach a data constructor.
    Weak head normal form (WHNF) is a larger set and contains both the possibility that the expression is:
-     ** Fully evaluated (*normal form*)
-     ** Has been evaluated to the point of arriving at a *data constructor* 
-     ** *Lambda* awaiting an argument.
+     * Fully evaluated (*normal form*)
+     * Has been evaluated to the point of arriving at a *data constructor* 
+     * *Lambda* awaiting an argument.
 
    * /Weak Head/ is an expression which is evaluated up to /at least/ the first data constructor.
    * /Normal form/ exceeds that by requiring that all sub-expressions be fully evaluated.
    * Functions that are spine strict can force complete evaluation of the spine of the list even if they don’t force evaluation of each value.
-     ** Pattern matching is strict by default, so pattern matching on cons cells can mean forcing spine strictness if your function doesn’t stop recursing the list. It can evaluate the spine only or the spine as well as the values that inhabit each cons cell, depending on context.
+     * Pattern matching is strict by default, so pattern matching on cons cells can mean forcing spine strictness if your function doesn’t stop recursing the list. It can evaluate the spine only or the spine as well as the values that inhabit each cons cell, depending on context.
    * /Lazy in the spine, strict in the leaves/
    We can have lazily evaluated code (e.g., map) wrapped around a strict core (e.g., +). In fact, we can choose to apply laziness and strictness in how we evaluate the spine or the leaves independently.
 

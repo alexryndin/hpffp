@@ -149,3 +149,44 @@ Cons 1 (Cons 2 (Cons 3 Nil))
 #+END_SRC
    Here (Cons 1 ...), (Cons 2 ...) and (Cons 3 Nil) are all individual cons cells in the list [1, 2, 3].
    * The spine is a way to refer to the structure that glues a collection of values together. In the list datatype it is formed by the recursive nesting of cons cells. The spine is, in essence, the structure of collection that isn’t the values contained therein. Often spine will be used in reference to lists, but it applies with tree data structures as well
+
+* Chapter 10
+**  Evaluation of fold functions
+   * Folding is two stage process, and include /traversal/ and /folding/.
+    * Traversal is the stage in which the fold recurses over the spine. Traversing the rest of the spine /doesn’t occur/ unless the function asks for the results of having folded the rest of the list. 
+    * Folding refers to the evaluation or reduction of the folding function applied to the values. Given this two-stage process and non-strict evaluation, if ~f~ doesn’t evaluate its second argument (rest of the fold), no more of ~t~he spine will be forced. One of the consequences of this is that foldr can avoid evaluating not just some or all of the values in the list, but some or all of the list’s spine as well! For this reason, foldr can be used with lists that are potentially infinite.
+** Types of Fold functions
+*** Foldr
+    * Definition:
+#+BEGIN_SRC haskell
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr f z [] = z
+foldr f z (x:xs) = f x (foldr f z xs)
+#+END_SRC
+    * Associates to right, so:
+#+BEGIN_SRC haskell
+foldr (+) 0 [1, 2, 3]
+-- expands to
+1 + (2 + (3 + 0))
+#+END_SRC
+    * Traverses from head to tail, reduces backward
+    * Works well with infinite lists:
+#+BEGIN_SRC 
+Prelude> myAny even [1..] -- myAny is defined through foldr
+True
+#+END_SRC
+
+*** Foldl
+    * Definition:
+#+BEGIN_SRC haskell
+foldl :: (b -> a -> b) -> b -> [a] -> b
+foldl f acc [] = acc
+foldl f acc (x:xs) = foldl f (f acc x) xs
+#+END_SRC
+    *  Associates to left, so:
+#+BEGIN_SRC haskell
+foldl (+) 0 (1 : 2 : 3 : [])
+-- expands to
+((0 + 1) + 2) + 3
+#+END_SRC
+    * Traverses and reduces in the same direction - from head to tail.

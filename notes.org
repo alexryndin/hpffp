@@ -193,10 +193,112 @@ foldl (+) 0 (1 : 2 : 3 : [])
     * Recursion of the spine is unconditional:
     ~foldl~ must evaluate its whole spine before it starts evaluating values in each cell, it accumulates a pile of unevaluated values as it traverses the spine.
     Use foldl' (foldl-prime) to avoid this behavior.
+    #+BEGIN_SRC haskell
+    Prelude> foldr const 0 ([1..5] ++ undefined)
+    1
+    Prelude> foldr (flip const) 0 ([1..5] ++ undefined)
+    *** Exception: Prelude.undefined
+    #+END_SRC
+** Tail call and tail recursion
+   * A /tail call/ is the final result of a function. Some examples of tail calls in Haskell functions:
 #+BEGIN_SRC haskell
-Prelude> foldr const 0 ([1..5] ++ undefined)
-1
-Prelude> foldr (flip const) 0 ([1..5] ++ undefined)
-*** Exception: Prelude.undefined
+  f x y z = h (subFunction x y z)
+  where subFunction x y z = g x y z
+  -- the ``tail call'' is h (subFunction x y z)
+  -- or more precisely, h
 #+END_SRC
-      
+   * /Tail recursion/ is a function whose /tail calls/ are recursive invocations of /itself/. This is distinguished from functions that call other functions in their tail call.
+     * The below is not tail recursive, calls h, not itself.
+     #+BEGIN_SRC haskell
+       f x y z = h (subFunction x y z)
+       where subFunction x y z = g x y z    
+     #+END_SRC
+     * Still not tail recursive. f is invoked again but not in the tail-call of f, it’s an argument to the actual tail-call h.
+     #+BEGIN_SRC haskell
+       f x y z = h (f (x - 1) y z)
+     #+END_SRC
+     * This is tail recursive. f is calling itself directly with no intermediaries.
+     #+BEGIN_SRC haskell
+       f x y z = f (x - 1) y z
+     #+END_SRC
+     * Not tail recursive, we give up control to the combining function f before continuing through the list. foldr’s recursive calls will bounce between foldr and f.
+     #+BEGIN_SRC haskell
+       foldr f z [] = z
+       foldr f z (x:xs) = f x (foldr f z xs)    
+     #+END_SRC
+     * Tail recursive. foldl invokes itself recursively. The combining function is only an argument to the recursive fold.
+     #+BEGIN_SRC haskell
+       foldl f z [] = z
+       foldl f z (x:xs) = foldl f (f z x) xs
+     #+END_SRC
+** scanl and scanr
+   * scanl definition:
+#+BEGIN_SRC haskell
+scanl            :: (a -> b -> a) -> a -> [b] -> [a]
+scanl f q xs     =  q : (case xs of
+                            []   -> []
+                            x:xs -> scanl f (f q x) xs)
+#+END_SRC
+   * scanr definition:
+#+BEGIN_SRC haskell
+scanr             :: (a -> b -> b) -> b -> [a] -> [b]
+scanr f q0 []     =  [q0]
+scanr f q0 (x:xs) =  f x q : qs
+                     where qs@(q:_) = scanr f q0 xs 
+#+END_SRC
+* Chapter 11
+** Algebraic Datatypes
+   * A type can be thought of as an enumeration of constructors that have zero or more arguments.
+** Data and type constructors
+   * Type constructor:
+     * used only at the type level, in type signatures and typeclass declarations and instances.
+     * are static and resolve at compile time
+   * Data constructor: 
+     * construct the values at term level, values you can interact with at runtime
+   * Type and data constructors that take no arguments are constants.
+     * Example - Bool datatype
+   * Information about types does not persist through to runtime. Data are what we’re working with at runtime.
+
+** Cardinality
+   * Datatypes that only contain a unary constructor always have the same cardinality as the type they contain.
+     * For cardinality this means unary constructors are the identity function.
+** newtype
+   * Can have only a single unary constructor, so...
+     * The cardinality of a newtype is the same as that of the type it contains.
+   * cannot be a product type, sum type, or contain nullary constructors
+   * has no runtime overhead, as it reuses the representation of the type it contains
+     * It can do this because it’s not allowed to be a record (product type) or tagged union (sum type)
+** Sum type
+   * Interesting link about flexible instances - https://ghc.haskell.org/trac/haskell-prime/wiki/FlexibleInstances
+** Product type
+   * Any data constructor with two or more type arguments is a product.
+
+** Constructing and deconstructing values
+   * There are essentially two things we can do with a value. 
+     * We can generate or construct it or...
+     * we can match on it and consume it.
+** Records Syntax
+   * Whenever we have a product that uses record accessors, keep it separate of any sum type that is wrapping it.
+#+BEGIN_SRC haskell
+          -- Wrong
+  data Automobile = Null
+                  | Car { make :: String , model :: String , year :: Integer }
+                  deriving (Eq, Show)
+-- because of error when accidently accessing field with Null data:
+ Prelude> make Null
+"*** Exception: No match in record selector make 
+#+END_SRC
+    * Instead split out the product into an independent type with its own type constructor
+** Function type is exponential
+    * Given a function a -> b, we can calculate the inhabitants with the formula b^a
+** Higher-kinded datatypes
+   * Type constructors are functions one level up, structuring things that cannot exist at runtime — it’s purely static and describes the structure of your types
+   * Kinds are the types of type constructors, primarily encoding the number of arguments they take.
+   * Getting comfortable with higher-kinded types is important as type arguments provide a generic way to express a “hole” to be filled by consumers of your datatype later.
+   * /higher kinded type/ is not to be confused with higher kinded /polymorphism/!
+* Chapter 12
+** Lifted and unlifted types
+   * kind * is the kind of all standard lifted types, while types that have the kind # are unlifted.
+   A lifted type, which includes any datatype you could define yourself, is any that can be inhabited by bottom. Lifted types are represented by a pointer and include most of the datatypes we’ve seen and most that you’re likely to encounter and use. Unlifted types are any type which cannot be inhabited by bottom. Types of kind # are often native machine types and raw pointers.
+   Newtypes are a special case in that they are kind *, but are unlifted because their representation is identical to that of the type they contain, so the newtype itself is not creating any new pointer beyond that of the type it contains. That fact means that the newtype itself cannot be inhabited by bottom, only the thing it contains can be, so newtypes are unlifted. The default kind of concrete, fully-applied datatypes in GHC is kind *.
+   

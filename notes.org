@@ -301,4 +301,24 @@ scanr f q0 (x:xs) =  f x q : qs
    * kind * is the kind of all standard lifted types, while types that have the kind # are unlifted.
    A lifted type, which includes any datatype you could define yourself, is any that can be inhabited by bottom. Lifted types are represented by a pointer and include most of the datatypes we’ve seen and most that you’re likely to encounter and use. Unlifted types are any type which cannot be inhabited by bottom. Types of kind # are often native machine types and raw pointers.
    Newtypes are a special case in that they are kind *, but are unlifted because their representation is identical to that of the type they contain, so the newtype itself is not creating any new pointer beyond that of the type it contains. That fact means that the newtype itself cannot be inhabited by bottom, only the thing it contains can be, so newtypes are unlifted. The default kind of concrete, fully-applied datatypes in GHC is kind *.
-   
+* Chapter 13
+** Cabal and Stack
+   * Cabal, or Common Architecture for Building Applications and Libraries, is a package manager.
+     * Exists primarily to describe a single package with a Cabal file that has the .cabal file extension
+   * Stack is a cross-platform program for developing Haskell projects.
+     * Stack is built on top of Cabal in some important senses
+     * Helps you manage both projects made up of multiple packages as well as individual packages
+     * Relies on an LTS snapshot of Haskell packages from Stackage
+** Stack commands flow
+   * Setup GHC with stack ~stack setup~
+   * Setup dependencies with ~stack build~
+   * Run executable with ~stack exec~
+     * Exec can be found in path: ~.stack-work/dist/{...noise...}/hello~ within your project directory
+     * Exec building properties described in *.cabal file like that:
+#+BEGIN_SRC 
+executable hello
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+#+END_SRC

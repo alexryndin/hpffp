@@ -38,6 +38,36 @@ randomWord wl = do
 randomWord' :: IO String
 randomWord' = gameWords >>= randomWord
 
+data Puzzle = Puzzle String [Maybe Char] [Char]
+
+instance Show Puzzle where
+  show (Puzzle _ discovered guessed) =
+    (intersperse ' ' $ fmap renderPuzzleChar discovered)
+    ++ " Guessed so far: " ++ guessed
+
+freshPuzzle :: String -> Puzzle
+freshPuzzle s = Puzzle s (map $ const Nothing $ s) ""
+
+charInWord :: Puzzle -> Char -> Bool
+charInWord (Puzzle w _ _) c = elem c w
+
+alreadyGuessed :: Puzzle -> Char -> Bool
+alreadyGuessed (Puzzle _ _ l) c = elem c l
+
+renderPuzzleChar :: Maybe Char -> Char
+renderPuzzleChar Nothing  = '_'
+renderPuzzleChar (Just c) =  c
+
+fillInCharacter :: Puzzle -> Char -> Puzzle
+fillInCharacter (Puzzle word filledInSoFar s) c =
+  Puzzle word newFilledInSoFar (c : s)
+  where zipper guessed wordChar guessChar =
+          if wordChar == guessed
+          then Just wordChar
+          else guessChar
+        newFilledInSoFar =
+          zipWith (zipper c) word filledInSoFar
+
 main :: IO ()
 main = do
   putStrLn "hello world"

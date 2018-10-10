@@ -322,3 +322,11 @@ executable hello
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
 #+END_SRC
+* Chapter 14
+** Test types
+   * Unit and Spec tesing
+     Unit testing allows the programmer to check that each function is performing the task it is meant to do. You assert that when the code runs with a specified input, the result is equal to the result you want.
+     Spec testing is a somewhat newer version of unit testing. Like unit testing, it tests specific functions independently and asks you to assert that, when given the declared input, the result of the operation will be equal to the desired result.
+   * Properties testing
+     Property tests test the formal properties of programs without requiring formal proofs by allowing you to express a truth-valued, universally quantified (that is, will apply to all cases) function — usually equality — which will then be checked against randomly generated inputs.
+     Property testing is fantastic for ensuring that you’ve met the minimum requirements to satisfy laws, such as the laws of monads or basic associativity. It is not appropriate for all programs, though, as it is not useful for times when there are no assertable, truth-valued properties of the software.

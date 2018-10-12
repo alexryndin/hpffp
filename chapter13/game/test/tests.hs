@@ -2,7 +2,7 @@ module Main where
 
 import Test.Hspec
 import Test.QuickCheck
-import qualified Game as M
+import qualified Main as M
 
 main :: IO ()
 main = hspec $ do

@@ -21,3 +21,14 @@ executable game
   build-depends:       base >= 4.7 && < 5,
                        random,
                        split
+
+test-suite tests
+  type:                exitcode-stdio-1.0
+  ghc-options:         -Wall -fwarn-tabs
+  main-is:             tests.hs
+  hs-source-dirs:      test
+  build-depends:       base >= 4.7 && < 5
+                       , hspec
+                       , QuickCheck
+                       , game
+  default-language: Haskell2010

@@ -359,3 +359,18 @@ trivialInt = return 1
 oneThroughThree :: Gen Int
 oneThroughThree = elements [1, 2, 2, 2, 2, 3]
 #+END_SRC
+   Generator of sum type of two values can be created with ~oneof~:
+#+BEGIN_SRC haskell
+sumGenEqual :: (Arbitrary a, Arbitrary b) => Gen (Sum a b)
+sumGenEqual = do
+  a <- arbitrary
+  b <- arbitrary
+  oneof [return $ First a,
+         return $ Second b]
+#+END_SRC
+*** CoArbitrary
+    * CoArbitrary is a counterpart to Arbitrary that enables the generation of functions fitting a particular type. It lets you provide functions with a value of type a as an argument in order to vary a Gen:
+#+BEGIN_SRC haskell
+coarbitrary :: CoArbitrary a =>
+               a -> Gen b -> Gen b
+#+END_SRC

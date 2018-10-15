@@ -301,7 +301,7 @@ scanr f q0 (x:xs) =  f x q : qs
    * kind * is the kind of all standard lifted types, while types that have the kind # are unlifted.
    A lifted type, which includes any datatype you could define yourself, is any that can be inhabited by bottom. Lifted types are represented by a pointer and include most of the datatypes we’ve seen and most that you’re likely to encounter and use. Unlifted types are any type which cannot be inhabited by bottom. Types of kind # are often native machine types and raw pointers.
    Newtypes are a special case in that they are kind *, but are unlifted because their representation is identical to that of the type they contain, so the newtype itself is not creating any new pointer beyond that of the type it contains. That fact means that the newtype itself cannot be inhabited by bottom, only the thing it contains can be, so newtypes are unlifted. The default kind of concrete, fully-applied datatypes in GHC is kind *.
-* Chapter 13
+* Chapter 13 - Building projects
 ** Cabal and Stack
    * Cabal, or Common Architecture for Building Applications and Libraries, is a package manager.
      * Exists primarily to describe a single package with a Cabal file that has the .cabal file extension
@@ -322,9 +322,9 @@ executable hello
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
 #+END_SRC
-* Chapter 14
+* Chapter 14 - Testing
 ** Test types
-***   Unit testing
+*** Unit testing
      Unit testing allows the programmer to check that each function is performing the task it is meant to do. You assert that when the code runs with a specified input, the result is equal to the result you want.
 *** Spec testing
      Spec testing is a somewhat newer version of unit testing. Like unit testing, it tests specific functions independently and asks you to assert that, when given the declared input, the result of the operation will be equal to the desired result.
@@ -334,39 +334,39 @@ executable hello
      Comparing to unit testing — the testing of individual units of code — Property testing is done with the assertion of laws or properties. 
 ** QuickCheck is for properties testing
    QuickCheck relies on a typeclass called Arbitrary and a newtype called ~Gen~ for generating its random data. arbitrary is a value of type Gen:
-   #+BEGIN_SRC haskell
-Prelude> :t arbitrary
-arbitrary :: Arbitrary a => Gen a
-   #+END_SRC
+#+BEGIN_SRC haskell
+  Prelude> :t arbitrary
+  arbitrary :: Arbitrary a => Gen a
+#+END_SRC
    This is merely a way to set a default generator for a type. When you use the arbitrary value, you have to specify the type to dispatch the right typeclass instance
    Use ~sample~ and ~sample'~ from the Test.QuickCheck module in order to get random data.
-   #+BEGIN_SRC haskell
-     Prelude> sample (arbitrary :: Gen Int)
-     0
-     <...>
-     -4
-     Prelude> sample (arbitrary :: Gen Double)
-     0.0
-     <...>
-     26.87468214215407
-   #+END_SRC
+#+BEGIN_SRC haskell
+  Prelude> sample (arbitrary :: Gen Int)
+  0
+  <...>
+  -4
+  Prelude> sample (arbitrary :: Gen Double)
+  0.0
+  <...>
+  26.87468214215407
+#+END_SRC
    You can create your own generator:
 #+BEGIN_SRC haskell
--- this will return only one's when sampling
-trivialInt :: Gen Int
-trivialInt = return 1
--- this will return values from list when sampling:
-oneThroughThree :: Gen Int
-oneThroughThree = elements [1, 2, 2, 2, 2, 3]
+  -- this will return only one's when sampling
+  trivialInt :: Gen Int
+  trivialInt = return 1
+  -- this will return values from list when sampling:
+  oneThroughThree :: Gen Int
+  oneThroughThree = elements [1, 2, 2, 2, 2, 3]
 #+END_SRC
    Generator of sum type of two values can be created with ~oneof~:
 #+BEGIN_SRC haskell
-sumGenEqual :: (Arbitrary a, Arbitrary b) => Gen (Sum a b)
-sumGenEqual = do
-  a <- arbitrary
-  b <- arbitrary
-  oneof [return $ First a,
-         return $ Second b]
+  sumGenEqual :: (Arbitrary a, Arbitrary b) => Gen (Sum a b)
+  sumGenEqual = do
+    a <- arbitrary
+    b <- arbitrary
+    oneof [return $ First a,
+           return $ Second b]
 #+END_SRC
 *** CoArbitrary
     * CoArbitrary is a counterpart to Arbitrary that enables the generation of functions fitting a particular type. It lets you provide functions with a value of type a as an argument in order to vary a Gen:
@@ -374,3 +374,29 @@ sumGenEqual = do
 coarbitrary :: CoArbitrary a =>
                a -> Gen b -> Gen b
 #+END_SRC
+* Chapter 15 - Monoids and semigroups
+** Algebra
+   When we say /algebra/, we mean one or more /operations/ and the /set/ (actually type) they operate over.
+   Algebra is used to describe abstract patterns in code which have well-defined, lawful representations in mathematics.
+   In Haskell, algebras can be implemented with typeclasses; the typeclasses define the set of operations.
+   The typeclass instance defines how each operation will perform for a given type or set.
+   Algebras are defined by their laws and are useful principally for their laws. /Laws/ make up what algebras /are/.
+** Monoid
+   * A monoid is a binary associative operation with an identity 
+     ** In this context, identity means that there’ll be some value which, when combined with any other value, will always return that other value. 
+     ** An identity is a value with a special relationship with an operation: it turns the operation into the identity function.
+*** Why newtype?
+    newtype is like a single-member C union that avoids creating an extra pointer, but still gives you a new type constructor and data constructor so you don’t mix up the many many many things that share a single represen- tation.
+** Orphan instances
+   An orphan instance is when an instance is defined for a datatype and typeclass, but not in the same module as either the declaration of the typeclass or the datatype.
+   Writing orphan instances should be avoided /at all costs!/ If you don’t “own” the typeclass or the datatype, newtype it!
+** Surprise!
+   You can bind infix names for function arguments:
+#+BEGIN_SRC haskell
+  asc :: Eq a => (a -> a -> a) -> a -> a -> a -> Bool
+  asc (<>) a b c =
+    a <> (b <> c) == (a <> b) <> c
+#+END_SRC
+** Algebra strength
+   When we talk about the strength of an algebra, we usually mean the number of operations it provides which in turn expands what you can do with any given instance of that algebra without needing to know specifically what type you are working with.
+   The more operations and laws an algebra demands, the less datatypes that can provide a law abiding instance of that algebra there are.

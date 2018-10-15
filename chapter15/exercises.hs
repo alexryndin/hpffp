@@ -139,6 +139,15 @@ newtype Combine a b = Combine { unCombine :: (a -> b) }
 instance (Semigroup b) => Semigroup (Combine a b) where
   Combine f <> Combine g = Combine (\x -> f x <> g x)
 
+-- Dunno lol how this works
+combineAssoc :: Fun String String -> Fun String String -> Fun String String -> String -> Bool
+combineAssoc (Fn a) (Fn b) (Fn c) (d) = (unCombine (a' <> (b' <> c'))) d == ((unCombine ((a' <> b') <> c')) d)
+  where a' = Combine $ a
+        b' = Combine $ b
+        c' = Combine $ c
+
+--type CombineAssoc = Combine (Sum Int) (Sum Int) -> Combine (Sum Int) (Sum Int) -> Combine (Sum Int) (Sum Int) -> (Sum Int) -> Bool
+
 -- No tests
 
 -- 10.
@@ -296,6 +305,7 @@ main = do
   quickCheck (monoidLeftIdentity :: BoolDisj -> Bool)
   quickCheck (monoidRightIdentity :: BoolDisj -> Bool)
   quickCheck (semigroupAssoc :: OrAssoc)
+  quickCheck (combineAssoc)
   quickCheck (semigroupAssoc :: ValidationAssoc)
   quickCheck (semigroupAssoc :: AccumRightAssoc)
   quickCheck (semigroupAssoc :: AccumBothAssoc)

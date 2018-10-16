@@ -400,3 +400,5 @@ coarbitrary :: CoArbitrary a =>
 ** Algebra strength
    When we talk about the strength of an algebra, we usually mean the number of operations it provides which in turn expands what you can do with any given instance of that algebra without needing to know specifically what type you are working with.
    The more operations and laws an algebra demands, the less datatypes that can provide a law abiding instance of that algebra there are.
+* Chapter 16 - Functor
+  * Each argument (and result) in the type signature for a function must be a fully applied (and inhabitable, modulo Void, etc.) type. Each argument must have the kind *.

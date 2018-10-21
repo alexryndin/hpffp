@@ -2,6 +2,8 @@
 -- group constraints to type variables where needed. Use the Semigroup
 -- class from the semigroups library or write your own. When we use
 -- <>, we mean the infix mappend from the Semigroup typeclass.
+module Chapter15.Exercises where
+
 
 import Data.Monoid
 import Test.QuickCheck hiding (Success, Failure)

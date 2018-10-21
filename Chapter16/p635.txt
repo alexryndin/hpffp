@@ -1,0 +1,18 @@
+(.) :: (b -> c) -> (a -> b) -> a -> c
+
+(m -> n) -> f m -> f n
+(x -> y) -> (g x -> g y)
+   a            b
+
+(.) :: ((m -> n) -> (f m -> f n)) -> ((x -> y) -> (g x -> g y)) -> (x -> y) -> (f m -> f n)
+
+(.) :: ((g x -> g y) -> (f (g x) -> f (g y)))
+       -> ((x -> y) -> (g x -> g y))
+       -> ((x -> y) -> (f (g x) -> f (g y)))
+
+More:
+  https://stackoverflow.com/questions/23030638/how-fmap-fmap-typechecks
+(.) f g x = f (g x)
+g = fmap
+f = fmap
+fmap (fmap replacewith)

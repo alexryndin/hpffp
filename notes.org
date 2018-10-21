@@ -385,6 +385,12 @@ coarbitrary :: CoArbitrary a =>
    * A monoid is a binary associative operation with an identity 
      ** In this context, identity means that there’ll be some value which, when combined with any other value, will always return that other value. 
      ** An identity is a value with a special relationship with an operation: it turns the operation into the identity function.
+** Monoid laws
+#+BEGIN_SRC haskell
+  (x <> y) <> z = x <> (y <> z) -- associativity
+  mempty <> x = x               -- left identity
+  x <> mempty = x               -- right identity 
+#+END_SRC
 *** Why newtype?
     newtype is like a single-member C union that avoids creating an extra pointer, but still gives you a new type constructor and data constructor so you don’t mix up the many many many things that share a single represen- tation.
 ** Orphan instances
@@ -401,4 +407,83 @@ coarbitrary :: CoArbitrary a =>
    When we talk about the strength of an algebra, we usually mean the number of operations it provides which in turn expands what you can do with any given instance of that algebra without needing to know specifically what type you are working with.
    The more operations and laws an algebra demands, the less datatypes that can provide a law abiding instance of that algebra there are.
 * Chapter 16 - Functor
+** Functor in mathematics
+   Functor is a mapping between categories.
+** Type signatures
   * Each argument (and result) in the type signature for a function must be a fully applied (and inhabitable, modulo Void, etc.) type. Each argument must have the kind *.
+** Functor laws
+*** Identity
+#+BEGIN_SRC haskell
+  fmap id == id
+#+END_SRC
+*** Composition
+#+BEGIN_SRC haskell
+  fmap (f . g) == fmap f . fmap g
+#+END_SRC
+*** Structure preservation
+    All we’re allowed to know in the type about our instance of Functor implemented by f is that it implements Functor:
+#+BEGIN_SRC haskell
+  fmap :: Functor f => (a -> b) -> f a -> f b
+#+END_SRC
+    Because the f persists through the type of fmap, whatever the type is, we know it must be a type that can take an argument, as in f a and f b and that it will be the “structure” we’re lifting the function over when we apply it to the value inside.
+    Think of anything that isn’t the final type argument of our f in Functor as being part of the structure that the functions being lifted should be oblivious to:
+#+BEGIN_SRC haskell
+  data CountingBad a = Heisenberg Int a deriving (Eq, Show)
+  instance Functor CountingBad where
+  -- not ok cause we touch Int, which isn't a part of type
+    fmap f (Heisenberg n a) = Heisenberg (n+1) (f a)
+  -- ok
+  instance Functor CountingGood where
+    fmap f (Heisenberg n a) = Heisenberg (n) (f a)
+#+END_SRC
+** QuickCheck Function Generation
+#+BEGIN_SRC haskell
+  functorCompose' :: (Eq (f c), Functor f) => f a
+                                           -> Fun a b
+                                           -> Fun b c
+                                           -> Bool
+  functorCompose' x (Fun _ f) (Fun _ g) =
+    (fmap (g . f) x) == (fmap g . fmap f $ x)
+#+END_SRC
+    We’re pattern matching on the Fun value that we’re asking QuickCheck to generate. The underlying Fun type is essentially a product of the weird function type and an ordinary Haskell function generated from the weirdo. The weirdo QuickCheck-specific concrete function is a function represented by a datatype which can be inspected and recursed. We only want the second part, the ordinary Haskell function, so we’re pattern-matching that one out. 
+    Note of warning, you can’t print those Fun values, so verboseCheck will curse Socrates and spin in a circle if you try it.
+** IO Functor
+   Consider this:
+#+BEGIN_SRC haskell
+  -- getLine :: IO String
+  -- read :: Read a => String -> a
+  getInt :: IO Int
+  getInt = fmap read getLine
+#+END_SRC
+   ~getLine~ here is that it’s not a String, but rather a way to obtain a string. IO doesn’t guarantee that effects will be performed, but it does mean that they could be performed. Here the side effect is needing to block and wait for user input via the standard input stream the OS provides
+
+* Chapter 17 - Applicative
+** Applicative is monoidal functor
+   Consider this:
+#+BEGIN_SRC haskell
+  (<*>) :: f (a -> b) -> f a -> f b
+  -- and
+  mappend :: Monoid a => a -> a -> a
+#+END_SRC
+   With Applicative, we have a Monoid for our structure and function application for our values!
+   The fact that Applicative doesn’t return two lists (~[(+1), (*2)] <*> [2, 4] == [3,5,4,8]~) or a nested list or some other configuration in which both structures are preserved is the monoidal part; the reason we don’t have a list of functions merely concatenated with a list of values is the function application part.
+
+** Applicative laws
+*** Identity
+#+BEGIN_SRC haskell
+  pure id <*> v = v
+#+END_SRC 
+*** Composition
+#+BEGIN_SRC haskell
+  pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+#+END_SRC
+*** Homomorphism
+    A homomorphism is a structure-preserving map between two algebraic structures. The effect of applying a function that is embedded in some structure to a value that is embedded in some structure should be the same as applying a function to a value without affecting any outside structure:
+#+BEGIN_SRC haskell
+  pure f <*> pure x = pure (f x)
+#+END_SRC
+   You can think of this law as having to do with the monoidal part of the applicative deal: the result should be the result of the function application without doing anything other than combining the structure bits.
+*** Interchange
+#+BEGIN_SRC haskell
+  u <*> pure y = pure ($ y) <*> u
+#+END_SRC

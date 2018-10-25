@@ -545,3 +545,19 @@ coarbitrary :: CoArbitrary a =>
   join $ putStrLn <$> getLine :: IO ()
 #+END_SRC
    We still haven’t left the lambda calculus behind. Monadic sequencing and do syntax seem on the surface to be very far removed from that. But they aren’t. As we said, monadic actions are still pure, and the sequencing operations we use here are just ways of nesting lambdas. Now, IO is a bit different, as it does allow for side effects, but since those effects are constrained within the IO type, all the rest of it is still a pure lambda calculus.
+** Monad laws
+*** Identity
+   Monad has two identity laws:
+#+BEGIN_SRC haskell
+  -- right identity
+  m >>= return = m
+  -- left identity
+  return x >>= f = f x
+#+END_SRC
+   Basically both of these laws are saying that return should be neutral and not perform any computation.
+   Just like ~pure~, return shouldn’t change any of the behavior of the rest of the function; it is only there to put things into structure when we need to, and the existence of the structure should not affect the computation.
+*** Associativity
+#+BEGIN_SRC haskell
+  (m >>= f) >>= g = m >>= (\x -> f x >>= g)
+#+END_SRC
+   

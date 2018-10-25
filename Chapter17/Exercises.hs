@@ -71,11 +71,11 @@ combos = liftA3 (,,)
 
 main :: IO ()
 main = do
-  quickBatch $ applicative (Pair undefined  ("a", 1, 11) :: Pair (String, Sum Int, Sum Double))
-  quickBatch $ applicative (Two   " "       undefined :: Two String (String, Sum Int, Sum Double))
-  quickBatch $ applicative (Three " " " "   ("a", 1, 11) :: Three String String (String, Sum Int, Sum Double))
-  quickBatch $ applicative (Three " " " "   ("a", [1], 11) :: Three String String (String, [Int], Sum Double))
-  quickBatch $ applicative (Three' " " undefined  ("a", 1, 11) :: Three' String (String, Sum Int, Sum Double))
-  quickBatch $ applicative (Four " " " " " " ("a", [1], 11) :: Four String String String (String, [Int], Sum Double))
-  quickBatch $ applicative (Four' " " " " " " ("a", [1], 11) :: Four' String (String, [Int], Sum Double))
+  quickBatch $ applicative (undefined :: Pair (String, Sum Int, Sum Double))
+  quickBatch $ applicative (undefined :: Two String (String, Sum Int, Sum Double))
+  quickBatch $ applicative (undefined :: Three String String (String, Sum Int, Sum Double))
+  quickBatch $ applicative (undefined :: Three String String (String, [Int], Sum Double))
+  quickBatch $ applicative (undefined :: Three' String (String, Sum Int, Sum Double))
+  quickBatch $ applicative (undefined :: Four String String String (String, [Int], Sum Double))
+  quickBatch $ applicative (undefined :: Four' String (String, [Int], Sum Double))
   putStrLn $ show $ combos stops vowels stops

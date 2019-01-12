@@ -1,4 +1,5 @@
 -- Write an Applicative instance for Identity.
+module Chapter17.P686 where
 
 newtype Identity a = Identity a
   deriving (Eq, Ord, Show)

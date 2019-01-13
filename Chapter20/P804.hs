@@ -1,4 +1,4 @@
-module P804 where
+module Chapter20.P804 where
 
 data Optional a = Nada | Yep a deriving (Show, Eq)
 

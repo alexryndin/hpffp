@@ -1,3 +1,5 @@
+module Chapter18.Exercises where
+
 import Prelude hiding (Right, Left, Identity)
 import Test.QuickCheck
 import Test.QuickCheck.Checkers

@@ -2,7 +2,11 @@ module Exercises21 where
 
 import Chapter17.P686
 import Chapter20.P804
+import Chapter17.Exercises
 import Chapter18.Exercises
+import Chapter16.P646
+import Chapter15.Exercises hiding (Identity)
+import Chapter20.Exercises hiding (Constant)
 
 
 import Test.QuickCheck
@@ -85,6 +89,30 @@ instance Traversable List where
   traverse f (Cons x xs) = Cons <$> f x <*> traverse f xs
   traverse _ Nil = pure Nil
 
+-- 5.
+
+instance Traversable (Three a b) where
+  sequenceA (Three a b c) = Three a b <$> c
+
+-- 6.
+instance Traversable (Three' a) where
+  sequenceA (Three' a b c) = Three' a <$> b <*> c
+
+-- 7.
+data S n a = S (n a) a deriving (Show, Eq)
+
+instance (Arbitrary a, Arbitrary (n a)) => Arbitrary (S n a) where
+  arbitrary = do
+    a <- arbitrary
+    b <- arbitrary
+    return $ S a b
+
+instance (Eq a, Eq (n a)) => EqProp (S n a) where (=-=) = eq
+
+instance Functor n => Functor (S n) where
+  fmap f (S a b) = S (fmap f a) $ f b
+
+instance Applicative (S n)
 
 main = do
   let trigger = undefined :: Identity (Int, Int, [Int])
@@ -95,3 +123,7 @@ main = do
   quickBatch (traversable triger3)
   let trugger4 = undefined :: List (Int, Int, [Bool])
   quickBatch (traversable trugger4)
+  let tringer5 = undefined :: Three (Int, Int, [Int]) (Int, Int, [Int]) (Int, Int, [Int])
+  quickBatch (traversable tringer5)
+  let trigger6 = undefined :: Three' (Int, Int, [Int]) (Int, Int, [Int])
+  quickBatch (traversable trigger6)

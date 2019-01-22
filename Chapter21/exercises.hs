@@ -112,7 +112,15 @@ instance (Eq a, Eq (n a)) => EqProp (S n a) where (=-=) = eq
 instance Functor n => Functor (S n) where
   fmap f (S a b) = S (fmap f a) $ f b
 
-instance Applicative (S n)
+instance (Applicative n) => Applicative (S n) where
+  S fs f <*> S xs x = S (fs <*> xs) (f x)
+  pure x = S (pure x) x
+
+instance Foldable n => Foldable (S n) where
+  foldMap f (S xs x) = foldMap f xs <> f x
+
+instance Traversable n => Traversable (S n) where
+  sequenceA (S xs x) = S <$> (sequenceA xs) <*> x
 
 main = do
   let trigger = undefined :: Identity (Int, Int, [Int])
@@ -127,3 +135,7 @@ main = do
   quickBatch (traversable tringer5)
   let trigger6 = undefined :: Three' (Int, Int, [Int]) (Int, Int, [Int])
   quickBatch (traversable trigger6)
+  let s_applicative = undefined :: S Maybe (Int, Int, [Int])
+  quickBatch (applicative s_applicative)
+  let trigger7 = undefined :: S [] (Int, Int, [Int])
+  quickBatch (traversable trigger7)

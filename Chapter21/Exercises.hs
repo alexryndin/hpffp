@@ -1,4 +1,4 @@
-module Exercises21 where
+module Chapter21.Exercises where
 
 import Chapter17.P686
 import Chapter20.P804
@@ -122,6 +122,37 @@ instance Foldable n => Foldable (S n) where
 instance Traversable n => Traversable (S n) where
   sequenceA (S xs x) = S <$> (sequenceA xs) <*> x
 
+-- Tree
+
+instance Arbitrary a => Arbitrary (Tree a) where
+  arbitrary = do
+    a <- arbitrary
+    b <- arbitrary
+    c <- arbitrary
+    elements [Node (Leaf a) b (Leaf c), Leaf a, Empty]
+
+instance Eq a => EqProp (Tree a) where (=-=) = eq
+
+data Tree a = Empty
+            | Leaf a
+            | Node (Tree a) a (Tree a)
+            deriving (Eq, Show)
+
+instance Functor Tree where
+  fmap _ Empty = Empty
+  fmap f (Leaf a) = Leaf $ f a
+  fmap f (Node l x r) = Node (fmap f l) (f x) (fmap f r)
+
+instance Foldable Tree where
+  foldMap _ Empty        = mempty
+  foldMap f (Leaf x)     = f x
+  foldMap f (Node l x r) = foldMap f l <> f x <> foldMap f r
+
+instance Traversable Tree where
+  sequenceA Empty  = pure Empty
+  sequenceA (Leaf a) = Leaf <$> a
+  sequenceA (Node l x r) = Node <$> (sequenceA l) <*> x <*> (sequenceA r)
+
 main = do
   let trigger = undefined :: Identity (Int, Int, [Int])
   quickBatch (traversable trigger)
@@ -139,3 +170,5 @@ main = do
   quickBatch (applicative s_applicative)
   let trigger7 = undefined :: S [] (Int, Int, [Int])
   quickBatch (traversable trigger7)
+  let trigger8 = undefined :: Tree (Int, Int, [Int])
+  quickBatch (traversable trigger8)
